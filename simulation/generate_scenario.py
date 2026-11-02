@@ -76,7 +76,7 @@ def main():
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     rows = build_scenario()
-    output.write_text("".join(json.dumps(row, sort_keys=True) + "\\n" for row in rows), encoding="utf-8")
+    output.write_text("".join(json.dumps(row, sort_keys=True) + "\n" for row in rows), encoding="utf-8")
     print(f"Wrote {len(rows)} synthetic records to {output}")
     print("Training data only: no network or host activity was performed.")
 
