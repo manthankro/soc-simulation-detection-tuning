@@ -13,3 +13,9 @@
 - [Evidence log template](evidence-log-template.md)
 - [Risk register](risk-register.md)
 - [Portfolio evidence checklist](portfolio-evidence-checklist.md)
+
+
+## Reproducible simulation
+- [Synthetic scenario generator and usage](../simulation/README.md)
+- [Splunk simulation detections](../splunk/simulation_detections.spl)
+- [Interview demonstration script](interview-demo-script.md)
