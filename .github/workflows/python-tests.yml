@@ -1,0 +1,29 @@
+name: Python safety checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile Python
+        run: python -m compileall -q attack-scripts
+      - name: Generate synthetic events
+        run: python attack-scripts/generate_sample_events.py --output /tmp/sample-events.jsonl
+      - name: Validate generated JSONL
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rows = [json.loads(line) for line in Path("/tmp/sample-events.jsonl").read_text().splitlines()]
+          assert len(rows) == 5
+          assert all(row["simulation"] is True for row in rows)
+          assert all("timestamp" in row and "event_type" in row for row in rows)
+          print(f"validated {len(rows)} synthetic events")
+          PY
