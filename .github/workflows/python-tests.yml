@@ -15,9 +15,9 @@ jobs:
       - name: Install test dependency
         run: python -m pip install pytest
       - name: Run unit tests
-        run: python -m pytest -q
+        run: python -m pytest -q tests simulation
       - name: Compile Python
-        run: python -m compileall -q attack-scripts
+        run: python -m compileall -q attack-scripts simulation
       - name: Generate synthetic events
         run: python attack-scripts/generate_sample_events.py --output /tmp/sample-events.jsonl
       - name: Validate generated JSONL
