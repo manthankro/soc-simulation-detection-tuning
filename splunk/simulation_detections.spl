@@ -1,0 +1,40 @@
+# Splunk searches for simulation/sample-scenario.jsonl
+# Import into a dedicated index named soc_simulation.
+# Validate timestamps and field extraction before use.
+
+# D01 — Reconnaissance: >25 unique destination ports in a 2-minute bucket
+index=soc_simulation simulation=true event_type=connection_attempt
+| bin _time span=2m
+| stats dc(dest_port) as unique_ports values(dest_port) as ports by _time src_ip dest_ip
+| where unique_ports > 25
+| eval detection_id="D01", severity="LOW", title="High-volume port discovery"
+| table _time detection_id severity title src_ip dest_ip unique_ports ports
+
+# D02 — SSH failures followed by success in a 5-minute bucket
+index=soc_simulation simulation=true event_type=ssh_auth
+| bin _time span=5m
+| stats count(eval(auth_result="failure")) as failures
+        count(eval(auth_result="success")) as successes
+        values(user) as users
+        values(auth_result) as results
+        by _time src_ip dest_ip
+| where failures > 10 AND successes >= 1
+| eval detection_id="D02", severity="HIGH", title="SSH guessing followed by successful authentication"
+| table _time detection_id severity title src_ip dest_ip users failures successes
+
+# D03 — Suspicious shell launched by a web service account/process
+index=soc_simulation simulation=true sourcetype=linux_audit event_type=process_exec
+| where user="www-data" AND (exe="/bin/bash" OR exe="/bin/sh")
+| eval detection_id="D03", severity="CRITICAL", title="Web service account launched a shell"
+| table _time detection_id severity title host user uid exe parent_exe ppid command_line
+
+# D04 — Cron persistence indicator
+index=soc_simulation simulation=true sourcetype=linux_audit event_type=file_change
+| where like(path, "%/crontabs/%") AND operation="modified"
+| eval detection_id="D04", severity="HIGH", title="Cron schedule modified"
+| table _time detection_id severity title host user path operation
+
+# Analyst pivot — all synthetic records associated with the case
+index=soc_simulation simulation=true scenario_id="SOC-CASE-001"
+| sort 0 _time
+| table _time phase event_type src_ip dest_ip user auth_result exe parent_exe path operation
