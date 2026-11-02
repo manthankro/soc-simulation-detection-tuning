@@ -99,6 +99,43 @@ The repository labels the supplied logic as a starting point rather than claimin
 5. Test each SPL detection against known benign and simulated lab events.
 6. Record alert counts, true positives, false positives, and precision in your own test run.
 
+
+## Complete project documentation
+
+- [Lab build guide](docs/lab-build-guide.md)
+- [Network topology](docs/network-topology.md)
+- [Attack scenario matrix](docs/attack-scenario-matrix.md)
+- [Detection engineering methodology](docs/detection-engineering-methodology.md)
+- [Telemetry data dictionary](docs/data-dictionary.md)
+- [Detection validation plan](docs/validation-plan.md)
+- [Incident timeline example](docs/incident-timeline.md)
+- [Incident response playbook](docs/incident-response-playbook.md)
+- [Tuning metrics](docs/tuning-metrics.md)
+- [Risk register](docs/risk-register.md)
+- [Evidence log template](docs/evidence-log-template.md)
+- [Metrics report template](docs/metrics-report-template.md)
+- [Portfolio evidence checklist](docs/portfolio-evidence-checklist.md)
+
+## Engineering quality
+
+The repository also includes:
+- A synthetic event generator that performs no network activity.
+- A Python test and GitHub Actions workflow for basic safety/format validation.
+- Security policy, contribution guidance, and ignore rules for local evidence and secrets.
+
+## Roadmap to a standout portfolio
+
+The repository is a structured project framework. To make it a credible demonstration of hands-on skill, complete the lab and add your own sanitized evidence:
+1. Build the three VMs and prove isolation.
+2. Verify ingestion and field extraction in Splunk.
+3. Execute only authorized lab test cases and capture raw telemetry.
+4. Validate D01–D04 against positive and benign cases.
+5. Calculate metrics from your actual test dataset.
+6. Add screenshots, a topology image, and an incident report.
+7. Record a short walkthrough explaining one detection from raw event to triage.
+
+See the [portfolio evidence checklist](docs/portfolio-evidence-checklist.md). Do not describe planned tests, illustrative timestamps, or source-guide metrics as personally completed measurements.
+
 ## Disclaimer
 
 This project is for education, defensive security engineering, and authorized lab use only. Do not run attack techniques against public, third-party, or production systems without explicit written authorization.
