@@ -1,0 +1,62 @@
+# End-to-End SOC Simulation — SPL Detection Starters
+# Validate indexes, sourcetypes, field extractions, and time constraints in your own Splunk lab.
+# Source guide queries are retained in intent; comments call out known implementation gaps.
+
+############################################
+# RULE 1 — High-Volume Port Scan
+# Goal in source: >25 unique destination ports in a 2-minute rolling window.
+# NOTE: This version makes the two-minute window explicit using a 2-minute bin.
+############################################
+index=network OR index=os_logs
+| where isnotnull(src_ip) AND isnotnull(dest_port)
+| bin _time span=2m
+| lookup known_scanners.csv ip as src_ip OUTPUT owner description
+| where isnull(owner)
+| stats dc(dest_port) as unique_ports values(dest_port) as targeted_ports by _time src_ip
+| where unique_ports > 25
+| eval alert_type="Network Reconnaissance - Port Scan"
+| table _time src_ip unique_ports alert_type targeted_ports
+
+############################################
+# RULE 2 — SSH Brute Force Success Correlation
+# Source guide intent: >10 failures and >=1 success from same source within 5 minutes.
+# NOTE: This starter groups events into 5-minute buckets. For strict rolling-window
+# correlation and event ordering, implement transaction/streamstats logic and test it.
+############################################
+index=os_logs sourcetype=syslog "sshd" ("Failed password" OR "Accepted password")
+| rex "Failed password for (invalid user )?(?<failed_user>\S+) from (?<failed_src_ip>\d+\.\d+\.\d+\.\d+)"
+| rex "Accepted password for (?<success_user>\S+) from (?<success_src_ip>\d+\.\d+\.\d+\.\d+)"
+| eval src_ip=coalesce(failed_src_ip,success_src_ip)
+| eval user=coalesce(failed_user,success_user)
+| bin _time span=5m
+| stats count(eval(searchmatch("Failed password"))) as fail_count,
+        count(eval(searchmatch("Accepted password"))) as success_count,
+        values(user) as targeted_users
+        by _time src_ip
+| where fail_count > 10 AND success_count > 0
+| eval severity="CRITICAL", description="Brute force activity followed by successful authentication"
+| table _time src_ip targeted_users fail_count success_count severity description
+
+############################################
+# RULE 3 — Web Server Spawning Shell / Reverse-Shell-Like Command
+############################################
+index=os_logs sourcetype=linux_audit (type=EXECVE OR type=SYSCALL)
+| search (exe="/bin/bash" OR exe="/bin/sh" OR exe="/usr/bin/nc")
+         (a0="*dev/tcp*" OR a1="*dev/tcp*" OR a0="*-e*")
+| stats count values(a0) as cmd_args values(exe) as binary by host uid ppid
+| eval alert="Web Execution / Reverse Shell Detected"
+| table host uid ppid count binary cmd_args alert
+
+############################################
+# RULE 4 — Scheduled Task / Cron Persistence
+############################################
+index=os_logs sourcetype=syslog ("crontab" OR "CRON")
+| search "RELOAD" OR "EDIT" OR "dev/tcp"
+| stats count by host user _time
+| eval severity="HIGH", threat_category="Persistence"
+| table _time host user count severity threat_category
+
+############################################
+# TUNING REFERENCE — Source guide's lookup concept
+# Confirm the lookup is defined in Splunk and the source field is actually named src_ip.
+############################################
