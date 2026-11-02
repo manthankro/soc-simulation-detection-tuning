@@ -139,7 +139,7 @@ See the [portfolio evidence checklist](docs/portfolio-evidence-checklist.md). Do
 
 ## Reproducible demonstration lab
 
-A deterministic synthetic dataset generator is available in [simulation/](simulation/). It creates a multi-stage scenario and benign comparison events without performing network activity or executing attacks. Import the generated JSONL into a dedicated Splunk index and use [simulation detections](splunk/simulation_detections.spl).
+A deterministic synthetic dataset generator is available in [simulation/](simulation/). It creates a multi-stage scenario and benign comparison events without performing network activity or executing attacks. Import the generated JSONL into a dedicated Splunk index named `soc_simulation` using Splunk's JSON upload workflow, then use [simulation detections](splunk/simulation_detections.spl). The searches filter on extracted `event_type` fields rather than assuming the uploaded file's metadata sourcetype is `linux_audit`. Follow the [import and validation instructions](simulation/README.md) and select **All time** because the fixture timestamps are fixed.
 
 - [Generate and import the scenario](simulation/README.md)
 - [Build a Splunk dashboard](docs/splunk-dashboard-guide.md)
@@ -152,3 +152,8 @@ A deterministic synthetic dataset generator is available in [simulation/](simula
 ## Disclaimer
 
 This project is for education, defensive security engineering, and authorized lab use only. Do not run attack techniques against public, third-party, or production systems without explicit written authorization.
+
+
+## Current validation status
+
+The bundled Python tests validate the deterministic synthetic fixture and check key SPL query safeguards. They do **not** execute SPL in Splunk. The D01/D02 searches use event-time-ordered `streamstats` windows; validate their behavior against your Splunk version, especially for delayed or out-of-order events. Do not describe the lab as live-validated until you have imported the dataset into Splunk and retained screenshots or exported search results.
