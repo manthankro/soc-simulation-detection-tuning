@@ -136,6 +136,19 @@ The repository is a structured project framework. To make it a credible demonstr
 
 See the [portfolio evidence checklist](docs/portfolio-evidence-checklist.md). Do not describe planned tests, illustrative timestamps, or source-guide metrics as personally completed measurements.
 
+
+## Reproducible demonstration lab
+
+A deterministic synthetic dataset generator is available in [simulation/](simulation/). It creates a multi-stage scenario and benign comparison events without performing network activity or executing attacks. Import the generated JSONL into a dedicated Splunk index and use [simulation detections](splunk/simulation_detections.spl).
+
+- [Generate and import the scenario](simulation/README.md)
+- [Build a Splunk dashboard](docs/splunk-dashboard-guide.md)
+- [Interview walkthrough script](docs/interview-demo-script.md)
+- [Incident case study template](docs/case-study-template.md)
+- [Evidence directory guidance](evidence/README.md)
+
+**Evidence integrity:** the included scenario is synthetic training data. Replace templates with screenshots and measurements from your own lab before claiming hands-on execution.
+
 ## Disclaimer
 
 This project is for education, defensive security engineering, and authorized lab use only. Do not run attack techniques against public, third-party, or production systems without explicit written authorization.
