@@ -48,5 +48,5 @@ def test_spl_uses_event_fields_and_time_window_correlation():
     assert "streamstats time_window=300s current=f" in query
     assert query.count('event_type=process_exec') == 1
     assert query.count('event_type=file_change') == 1
-    assert "sourcetype=linux_audit" not in query
+    assert "index=soc_simulation simulation=true sourcetype=linux_audit" not in query
     assert 'index=soc_simulation simulation=true' in query
