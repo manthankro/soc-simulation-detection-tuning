@@ -30,7 +30,7 @@ index=soc_simulation simulation=true
 | stats count by event_type
 ```
 
-Expected totals: 30 connection_attempt, 13 ssh_auth, 1 process_exec and 1 file_change (49 records total including the four benign SSH failures; ssh_auth total is 17).
+Expected totals: 30 connection_attempt, 17 ssh_auth, 1 process_exec and 1 file_change (49 records total).
 
 6. Verify field extraction and timestamps:
 
